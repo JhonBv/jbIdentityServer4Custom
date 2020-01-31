@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Helpers\UserAccountHelper.cs" />
     <Compile Remove="Migrations\20200123230243_UserManagement_Full_v1.cs" />
     <Compile Remove="Migrations\20200123230243_UserManagement_Full_v1.Designer.cs" />
   </ItemGroup>
@@ -41,7 +42,6 @@
   
   <ItemGroup>
     <Folder Include="Creditgateway\authSettings\" />
-    <Folder Include="Interfaces\" />
     <Folder Include="Models\ViewModels\" />
     <Folder Include="Repositories\" />
   </ItemGroup>

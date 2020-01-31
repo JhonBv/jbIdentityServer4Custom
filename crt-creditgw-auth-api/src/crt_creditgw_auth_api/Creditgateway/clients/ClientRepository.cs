@@ -40,8 +40,7 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
                     ctx.Clients.Add(client);
                     ctx.SaveChanges();
                     clientId = client.Id;
-                }
-                ;
+                };
                 _secretsRepo.AddClientSecret(_factory.CreateClientSecret(clientId, NewSecret));
 
                 response.ClientName = client.ClientName;
