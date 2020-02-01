@@ -35,10 +35,6 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
         //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dto.Responses.Aisp.AccountsResponse))]
         public async Task<IActionResult> AddClient(ClientBindingDto dto)
         {
-
-            //_factory.CreateClientEntity(dto);
-            //await _repo.AddClient(_factory.CreateClientEntity(dto));
-
             return Ok(await _repo.AddClient(_factory.CreateClientEntity(dto)));
         }
     }

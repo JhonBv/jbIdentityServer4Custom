@@ -11,5 +11,7 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
     {
         ApiScope BuildApiScope(ApiScopeBindingDto dto);
         ClientScope BuildClientScope(ClientScopeBindingDto dto);
+
+        Task<ClientScope> BuildClientScope(int ClientId, string scope);
     }
 }

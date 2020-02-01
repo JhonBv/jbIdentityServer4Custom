@@ -2,6 +2,7 @@
 using System.Linq;
 using crt_creditgw_auth_api.Data;
 using crt_creditgw_auth_api.Creditgateway.scope.DTOs;
+using System.Threading.Tasks;
 
 namespace crt_creditgw_auth_api.Creditgateway.scope
 {
@@ -50,5 +51,17 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
             return scope;
         }
 
+        public async Task<ClientScope> BuildClientScope(int ClientId, string scope)
+        {
+            ClientScope result = null;
+            await Task.Run(() => {
+
+                result = new ClientScope { 
+                ClientId = ClientId,
+                Scope = scope
+                };
+            });
+            return result;
+        }
     }
 }

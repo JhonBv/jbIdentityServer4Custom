@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using crt_creditgw_auth_api.Creditgateway.clients.DTOs;
 using crt_creditgw_auth_api.Creditgateway.scope;
+using crt_creditgw_auth_api.Creditgateway.scope.DTOs;
 using crt_creditgw_auth_api.Creditgateway.services;
 using crt_creditgw_auth_api.Creditgateway.services.secrets;
 using crt_creditgw_auth_api.Creditgateway.services.secrets.DTOs;
@@ -27,11 +28,17 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
             _scopeFactory = scopeFactory;
             _scopeRepo = scopeRepo;
         }
+
+        /// <summary>
+        /// JB. Asyncronously create a new Client. Add Secret and Scope and return a response witht he info needed for Client Integration.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns></returns>
         public async Task<ClientResponseDto> AddClient(Client client)
         {
             string NewSecret = await RandomStringGenerator.GeneratedString();
 
-            ClientResponseDto response = new ClientResponseDto();
+            ClientResponseDto response = null;
             int clientId = 0;
             await Task.Run(() =>
             {
@@ -41,11 +48,15 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
                     ctx.SaveChanges();
                     clientId = client.Id;
                 };
+
                 _secretsRepo.AddClientSecret(_factory.CreateClientSecret(clientId, NewSecret));
 
-                response.ClientName = client.ClientName;
-                response.Client_Id = client.ClientId;
-                response.Secret = NewSecret;
+                response = new ClientResponseDto { 
+                ClientName = client.ClientName,
+                Client_Id = client.ClientId,
+                Secret = NewSecret
+                };
+
             });
 
             return response;

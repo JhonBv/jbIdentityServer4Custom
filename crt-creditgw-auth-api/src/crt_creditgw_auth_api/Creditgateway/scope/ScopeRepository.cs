@@ -1,6 +1,7 @@
 ﻿using crt_creditgw_auth_api.Data;
 using IdentityServer4.EntityFramework.Entities;
 using System;
+using System.Threading.Tasks;
 
 namespace crt_creditgw_auth_api.Creditgateway.scope
 {
@@ -28,17 +29,19 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
             return result;
         }
 
-        public string CreateClientScope(ClientScope scope)
+        public async Task<string> CreateClientScope(ClientScope scope)
         {
-            string result;
+            string result="";
             
             try
             {
-                _context.ClientScopes.Add(scope);
-                var id = scope.Id;
-                Save();
-                result = "Scope added for client Id " + id.ToString();
-
+                await Task.Run(() =>
+                {
+                    _context.ClientScopes.Add(scope);
+                    var id = scope.Id;
+                    Save();
+                    result = "Scope added for client Id " + id.ToString();
+                });
             }
             catch (Exception ex)
             {
