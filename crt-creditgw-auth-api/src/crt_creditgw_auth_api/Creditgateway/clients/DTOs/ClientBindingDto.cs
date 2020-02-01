@@ -17,5 +17,6 @@ namespace crt_creditgw_auth_api.Creditgateway.clients.DTOs
         public string LogoUri { get; set; }
 
         public List<string> AllowedScopes { get; set; }
+        public List<Dictionary<string, string>> Claims { get; set; }
     }
 }

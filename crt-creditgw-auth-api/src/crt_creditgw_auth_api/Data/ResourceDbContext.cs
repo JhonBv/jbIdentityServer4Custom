@@ -42,6 +42,11 @@ namespace crt_creditgw_auth_api.Data
         public DbSet<ClientSecret> ClientSecrets { get; set; }
 
         public DbSet<ClientGrantType> GrantTypes { get; set; }
+        public DbSet<ClientClaim> ClientClaims { get; set; }
+        public DbSet<ClientProperty> ClientProperties { get; set; }
+        public DbSet<ApiResourceClaim> ApiClaims { get; set; }
+        public DbSet<ApiResourceProperty> ApiProperties { get; set; }
+        public DbSet<ApiScopeClaim> ApiScopeClaims { get; set; }
 
         public ResourceConfigDbContext()
         {

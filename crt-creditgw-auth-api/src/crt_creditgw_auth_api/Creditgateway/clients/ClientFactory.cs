@@ -12,15 +12,15 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
     {
         public IdentityServer4.EntityFramework.Entities.Client CreateClientEntity(ClientBindingDto dto)
         {
-            return new IdentityServer4.EntityFramework.Entities.Client {
+            return new IdentityServer4.EntityFramework.Entities.Client
+            {
                 ClientName = dto.ClientName,
                 Description = dto.Description,
                 ClientUri = dto.ClientUri,
                 LogoUri = dto.LogoUri,
                 Created = DateTime.Today,
                 Enabled = true,
-                ClientId = Guid.NewGuid().ToString("N")
-               
+                ClientId = Guid.NewGuid().ToString("N"),
             };
         }
 

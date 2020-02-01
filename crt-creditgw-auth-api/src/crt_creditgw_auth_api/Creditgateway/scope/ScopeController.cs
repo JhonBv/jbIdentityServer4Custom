@@ -1,5 +1,6 @@
 ﻿using crt_creditgw_auth_api.Creditgateway.scope.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace crt_creditgw_auth_api.Creditgateway.scope
 {
@@ -22,14 +23,14 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("apiScope/add")]
-        public IActionResult AddScope(ApiScopeBindingDto dto)
+        public async Task<IActionResult> AddScope(ApiScopeBindingDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            return Ok(_repo.CreateApiScope(_factory.BuildApiScope(dto)));
+            return Ok(await _repo.CreateApiScope(_factory.BuildApiScope(dto)));
         }
 
         /// <summary>
@@ -38,14 +39,14 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("clientScope/add")]
-        public IActionResult AddClientScope(ClientScopeBindingDto dto)
+        public async Task<IActionResult> AddClientScope(ClientScopeBindingDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            return Ok(_repo.CreateClientScope(_factory.BuildClientScope(dto)));
+            return Ok(await _repo.CreateClientScope(_factory.BuildClientScope(dto)));
         }
 
     }

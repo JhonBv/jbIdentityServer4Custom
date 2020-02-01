@@ -1,6 +1,7 @@
 ﻿using crt_creditgw_auth_api.Creditgateway.clients;
 using crt_creditgw_auth_api.Creditgateway.resources;
 using crt_creditgw_auth_api.Creditgateway.scope;
+using crt_creditgw_auth_api.Creditgateway.services.claims;
 using crt_creditgw_auth_api.Creditgateway.services.secrets;
 using crt_creditgw_auth_api.Data;
 using crt_creditgw_auth_api.Models;
@@ -11,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Linq;
 using System.Reflection;
 
 namespace crt_creditgw_auth_api
@@ -53,7 +53,8 @@ namespace crt_creditgw_auth_api
                     options.ClientId = "copy client ID from Google here";
                     options.ClientSecret = "copy client secret from Google here";
                 });
-            //DI
+            
+            //JB. DI mapping
             services.AddScoped<IScopeFactory, ScopeFactory>();
             services.AddScoped<IScopeRepository, ScopeRepository>();
             services.AddScoped<ISecretsRepository, SecretsRepository>();
@@ -63,6 +64,8 @@ namespace crt_creditgw_auth_api
             services.AddScoped<IResourceRepository, ResourceRepository>();
             services.AddScoped<IClientFactory, ClientFactory>();
             services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddScoped<IClaimFactory, ClaimFactory>();
+            services.AddScoped<IClaimRepository, ClaimRepository>();
 
             //JB. Configure IdentityServer4 and Database Contexts
             var builder = services.AddIdentityServer()
@@ -82,7 +85,6 @@ namespace crt_creditgw_auth_api
                     }).AddAspNetIdentity<ApplicationUser>();
             // JB.not recommended for production - you need to store your key material somewhere secure. A certificate will be used instead.
             builder.AddDeveloperSigningCredential();
-            //builder.AddResourceStore<IResourceStore>();
         }
 
         public void Configure(IApplicationBuilder app)
@@ -103,9 +105,6 @@ namespace crt_creditgw_auth_api
             {
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
-
-        }
-
-        
+        }   
     }
 }

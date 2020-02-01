@@ -5,22 +5,31 @@ using System.Threading.Tasks;
 
 namespace crt_creditgw_auth_api.Creditgateway.scope
 {
+    /// <summary>
+    /// Persist Scopes in Database.
+    /// </summary>
     public class ScopeRepository:IScopeRepository
     {
-        private ResourceConfigDbContext _context;
         public ScopeRepository()
         {
-            _context = new ResourceConfigDbContext();
         }
-
-        public string CreateApiScope(ApiScope scope)
+        /// <summary>
+        /// JB. Create a New ApiScope when a new ApiResource is added to the Database.
+        /// </summary>
+        /// <param name="scope">ApiScope Type</param>
+        /// <returns>String Result</returns>
+        public async Task<string> CreateApiScope(ApiScope scope)
         {
-            string result;
+            string result="";
             try
             {
-                _context.ApiScopes.Add(scope);
-                Save();
-                result = "Api scope successfully added";
+                await Task.Run(() =>
+                {
+                    using var ctx = new ResourceConfigDbContext();
+                    ctx.ApiScopes.Add(scope);
+                    ctx.SaveChanges();
+                    result = "Api scope successfully added";
+                });
             }
             catch (Exception ex)
             {
@@ -29,6 +38,11 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
             return result;
         }
 
+        /// <summary>
+        /// JB. Creates a Client Socpe when a new Client is created in the Database.
+        /// </summary>
+        /// <param name="scope">ClientScope Type</param>
+        /// <returns>String Result</returns>
         public async Task<string> CreateClientScope(ClientScope scope)
         {
             string result="";
@@ -37,9 +51,10 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
             {
                 await Task.Run(() =>
                 {
-                    _context.ClientScopes.Add(scope);
+                    using var ctx = new ResourceConfigDbContext();
+                    ctx.ClientScopes.Add(scope);
                     var id = scope.Id;
-                    Save();
+                    ctx.SaveChanges();
                     result = "Scope added for client Id " + id.ToString();
                 });
             }
@@ -49,10 +64,6 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
             }
 
             return result;
-        }
-        public void Save()
-        {
-            _context.SaveChanges();
         }
     }
 }

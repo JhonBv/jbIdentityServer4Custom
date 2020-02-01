@@ -5,7 +5,7 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
 {
     public interface IScopeRepository
     {
-        string CreateApiScope(ApiScope scope);
+        Task<string> CreateApiScope(ApiScope scope);
         Task<string> CreateClientScope(ClientScope scope);
     }
 }

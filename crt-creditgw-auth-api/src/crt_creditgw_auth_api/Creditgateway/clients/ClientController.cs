@@ -32,10 +32,11 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
         /// </summary>
         /// <returns></returns>
         [HttpPost("add")]
-        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dto.Responses.Aisp.AccountsResponse))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ClientResponseDto))]
+        //[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Dto.Responses.ErrorResponse))]
         public async Task<IActionResult> AddClient(ClientBindingDto dto)
         {
-            return Ok(await _repo.AddClient(_factory.CreateClientEntity(dto)));
+            return Ok(await _repo.AddClient(_factory.CreateClientEntity(dto),dto));
         }
     }
 }

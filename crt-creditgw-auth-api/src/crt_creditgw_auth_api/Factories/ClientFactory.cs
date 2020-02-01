@@ -22,9 +22,6 @@ namespace crt_creditgw_auth_api.Factories
             ClientUri = dto.ClientUri,
             LogoUri = dto.LogoUri,
             Enabled = true,
-            
-            
-            //AllowedGrantTypes = GrantTypes.ClientCredentials,
 
             };
 

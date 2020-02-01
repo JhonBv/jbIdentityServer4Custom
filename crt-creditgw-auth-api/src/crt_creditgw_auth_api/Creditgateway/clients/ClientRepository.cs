@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using crt_creditgw_auth_api.Creditgateway.clients.DTOs;
 using crt_creditgw_auth_api.Creditgateway.scope;
-using crt_creditgw_auth_api.Creditgateway.scope.DTOs;
 using crt_creditgw_auth_api.Creditgateway.services;
+using crt_creditgw_auth_api.Creditgateway.services.claims;
 using crt_creditgw_auth_api.Creditgateway.services.secrets;
-using crt_creditgw_auth_api.Creditgateway.services.secrets.DTOs;
 using crt_creditgw_auth_api.Data;
 using IdentityServer4.EntityFramework.Entities;
 
@@ -17,16 +15,24 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
     {
         private IClientFactory _factory;
         private ISecretsRepository _secretsRepo;
-        private IScopeFactory _scopeFactory;
         private IScopeRepository _scopeRepo;
+        private IClaimFactory _claimFactory;
+        private IClaimRepository _claimRepo;
         
         
-        public ClientRepository(IClientFactory factory, ISecretsRepository secretsRepo, IScopeFactory scopeFactory, IScopeRepository scopeRepo)
+        public ClientRepository(
+            IClientFactory factory, 
+            ISecretsRepository secretsRepo, 
+            IScopeRepository scopeRepo, 
+            IClaimRepository claimRepo, 
+            IClaimFactory claimFactory
+            )
         {
             _factory = factory;
             _secretsRepo= secretsRepo;
-            _scopeFactory = scopeFactory;
             _scopeRepo = scopeRepo;
+            _claimRepo = claimRepo;
+            _claimFactory = claimFactory;
         }
 
         /// <summary>
@@ -34,30 +40,55 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
         /// </summary>
         /// <param name="client"></param>
         /// <returns></returns>
-        public async Task<ClientResponseDto> AddClient(Client client)
+        public async Task<ClientResponseDto> AddClient(Client client, ClientBindingDto dto)
         {
+            //JB. Build a newly randomdized Secret, this is what is passed to the client and it is not hashed yet. It will be hashed at persisting time.
             string NewSecret = await RandomStringGenerator.GeneratedString();
 
             ClientResponseDto response = null;
             int clientId = 0;
-            await Task.Run(() =>
+
+            try
             {
+                await Task.Run(() =>
+            {
+
                 using (var ctx = new ResourceConfigDbContext())
                 {
                     ctx.Clients.Add(client);
                     ctx.SaveChanges();
                     clientId = client.Id;
                 };
-
+                //JB. Add now Secret
                 _secretsRepo.AddClientSecret(_factory.CreateClientSecret(clientId, NewSecret));
 
-                response = new ClientResponseDto { 
-                ClientName = client.ClientName,
-                Client_Id = client.ClientId,
-                Secret = NewSecret
+                //JB. Add claims. Info about this Client
+                //ClientClaim daClaim;
+                //foreach (var c in dto.Claims) {
+                //    daClaim = new ClientClaim { c};
+                //}
+                //JB. Add Scopes this client is allowed in the system.
+                ClientScope daScope;
+                foreach (var scopev in dto.AllowedScopes)
+                {
+                    daScope = new ClientScope { ClientId = clientId, Scope = scopev };
+                    _scopeRepo.CreateClientScope(daScope);
+                }
+
+                response = new ClientResponseDto
+                {
+                    ClientName = client.ClientName,
+                    Client_Id = client.ClientId,
+                    Secret = NewSecret,
+                    AllowedScopes = dto.AllowedScopes
                 };
 
             });
+            }
+            catch (Exception ex)
+            {
+                ClientErrorResponseDto errorResponse = new ClientErrorResponseDto { Error = "Not Found. " + ex.Message };
+            }
 
             return response;
         }
