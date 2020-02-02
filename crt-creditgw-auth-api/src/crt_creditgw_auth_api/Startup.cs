@@ -2,6 +2,7 @@
 using crt_creditgw_auth_api.Creditgateway.resources;
 using crt_creditgw_auth_api.Creditgateway.scope;
 using crt_creditgw_auth_api.Creditgateway.services.claims;
+using crt_creditgw_auth_api.Creditgateway.services.grants;
 using crt_creditgw_auth_api.Creditgateway.services.secrets;
 using crt_creditgw_auth_api.Data;
 using crt_creditgw_auth_api.Models;
@@ -66,6 +67,7 @@ namespace crt_creditgw_auth_api
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IClaimFactory, ClaimFactory>();
             services.AddScoped<IClaimRepository, ClaimRepository>();
+            services.AddScoped<IGrantTypeRepository, GrantTypeRepository>();
 
             //JB. Configure IdentityServer4 and Database Contexts
             var builder = services.AddIdentityServer()

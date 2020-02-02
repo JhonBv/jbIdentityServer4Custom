@@ -53,8 +53,9 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
                 {
                     using var ctx = new ResourceConfigDbContext();
                     ctx.ClientScopes.Add(scope);
-                    var id = scope.Id;
+                    
                     ctx.SaveChanges();
+                    var id = scope.Id;
                     result = "Scope added for client Id " + id.ToString();
                 });
             }

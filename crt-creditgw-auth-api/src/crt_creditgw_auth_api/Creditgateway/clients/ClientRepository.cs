@@ -5,6 +5,7 @@ using crt_creditgw_auth_api.Creditgateway.clients.DTOs;
 using crt_creditgw_auth_api.Creditgateway.scope;
 using crt_creditgw_auth_api.Creditgateway.services;
 using crt_creditgw_auth_api.Creditgateway.services.claims;
+using crt_creditgw_auth_api.Creditgateway.services.grants;
 using crt_creditgw_auth_api.Creditgateway.services.secrets;
 using crt_creditgw_auth_api.Data;
 using IdentityServer4.EntityFramework.Entities;
@@ -16,23 +17,23 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
         private IClientFactory _factory;
         private ISecretsRepository _secretsRepo;
         private IScopeRepository _scopeRepo;
-        private IClaimFactory _claimFactory;
         private IClaimRepository _claimRepo;
+        private IGrantTypeRepository _grantRepo;
         
         
         public ClientRepository(
             IClientFactory factory, 
             ISecretsRepository secretsRepo, 
             IScopeRepository scopeRepo, 
-            IClaimRepository claimRepo, 
-            IClaimFactory claimFactory
+            IClaimRepository claimRepo,
+            IGrantTypeRepository grantRepo
             )
         {
             _factory = factory;
             _secretsRepo= secretsRepo;
             _scopeRepo = scopeRepo;
             _claimRepo = claimRepo;
-            _claimFactory = claimFactory;
+            _grantRepo = grantRepo;
         }
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
 
             try
             {
-                await Task.Run(() =>
+                await Task.Run(async () =>
             {
 
                 using (var ctx = new ResourceConfigDbContext())
@@ -62,17 +63,16 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
                 //JB. Add now Secret
                 _secretsRepo.AddClientSecret(_factory.CreateClientSecret(clientId, NewSecret));
 
-                //JB. Add claims. Info about this Client
-                //ClientClaim daClaim;
-                //foreach (var c in dto.Claims) {
-                //    daClaim = new ClientClaim { c};
-                //}
+                //JB. Add Client Grant Type
+                //ClientGrantType grants;
+                await _grantRepo.AddGrantType(new ClientGrantType {ClientId = clientId, GrantType = IdentityServer4.Models.GrantType.ClientCredentials});
+
                 //JB. Add Scopes this client is allowed in the system.
                 ClientScope daScope;
                 foreach (var scopev in dto.AllowedScopes)
                 {
                     daScope = new ClientScope { ClientId = clientId, Scope = scopev };
-                    _scopeRepo.CreateClientScope(daScope);
+                    await _scopeRepo.CreateClientScope(daScope);
                 }
 
                 response = new ClientResponseDto
@@ -80,8 +80,18 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
                     ClientName = client.ClientName,
                     Client_Id = client.ClientId,
                     Secret = NewSecret,
-                    AllowedScopes = dto.AllowedScopes
+                    AllowedScopes = dto.AllowedScopes,
+                    Claims = dto.Claims
                 };
+
+
+
+                //JB. Add claims. Info about this Client
+                foreach (var c in dto.Claims)
+                {
+                    var me = new ClientClaim { ClientId = clientId, Type = c["Type"], Value = c["Value"] };
+                    await _claimRepo.AddClaim(me);
+                }
 
             });
             }

@@ -14,13 +14,13 @@ namespace crt_creditgw_auth_api.Creditgateway.services.claims
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        Task<ClientClaim> CreateClientClaims(ClientClaimBindingDto dto, int cId);
+        ClientClaim CreateClientClaims(ClientClaimBindingDto dto);
 
         /// <summary>
         /// JB. Create Entity to add new Api Resource Claims
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        Task<ApiResourceClaim> CreateApiClaims(ApiClaimBindingDto dto, int aId);
+        ApiResourceClaim CreateApiClaims(ApiClaimBindingDto dto);
     }
 }

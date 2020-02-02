@@ -9,5 +9,6 @@ namespace crt_creditgw_auth_api.Creditgateway.services.claims.DTOs
     {
         public string Type { get; set; }
         public string Value { get; set; }
+        public int ClientId { get; set; }
     }
 }

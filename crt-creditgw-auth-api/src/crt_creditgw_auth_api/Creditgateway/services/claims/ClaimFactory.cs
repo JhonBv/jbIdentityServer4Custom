@@ -9,29 +9,24 @@ namespace crt_creditgw_auth_api.Creditgateway.services.claims
 {
     public class ClaimFactory : IClaimFactory
     {
-        public async Task<ApiResourceClaim> CreateApiClaims(ApiClaimBindingDto dto, int aId)
+        public ApiResourceClaim CreateApiClaims(ApiClaimBindingDto dto)
         {
-            ApiResourceClaim apiClaim = null;
-            await Task.Run(() => { 
-                apiClaim = new ApiResourceClaim { /*JB. Must pass int ID of the ApiresourceId*/
-                ApiResourceId = aId,
+
+            return new ApiResourceClaim
+            { /*JB. Must pass int ID of the ApiresourceId*/
+                ApiResourceId = dto.ApiResourceId,
                 Type = dto.Type
-                }; 
-            });
-            return apiClaim;
+            };
         }
 
-        public async Task<ClientClaim> CreateClientClaims(ClientClaimBindingDto dto, int cId)
+        public ClientClaim CreateClientClaims(ClientClaimBindingDto dto)
         {
-            ClientClaim clientClaim = null;
-            await Task.Run(() => { 
-                clientClaim = new ClientClaim { /*JB. Must pass int ID of the ClientId*/
-                ClientId=cId,
+            return new ClientClaim
+            { /*JB. Must pass int ID of the ClientId*/
+                ClientId = dto.ClientId,
                 Type = dto.Type,
                 Value = dto.Value
-                };
-            });
-            return clientClaim;
+            };
         }
     }
 }
