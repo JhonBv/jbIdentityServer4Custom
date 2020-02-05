@@ -64,15 +64,12 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
                 _secretsRepo.AddClientSecret(_factory.CreateClientSecret(clientId, NewSecret));
 
                 //JB. Add Client Grant Type
-                //ClientGrantType grants;
                 await _grantRepo.AddGrantType(new ClientGrantType {ClientId = clientId, GrantType = IdentityServer4.Models.GrantType.ClientCredentials});
 
                 //JB. Add Scopes this client is allowed in the system.
-                ClientScope daScope;
                 foreach (var scopev in dto.AllowedScopes)
                 {
-                    daScope = new ClientScope { ClientId = clientId, Scope = scopev };
-                    await _scopeRepo.CreateClientScope(daScope);
+                    await _scopeRepo.CreateClientScope(new ClientScope { ClientId = clientId, Scope = scopev });
                 }
 
                 response = new ClientResponseDto
@@ -83,14 +80,10 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
                     AllowedScopes = dto.AllowedScopes,
                     Claims = dto.Claims
                 };
-
-
-
                 //JB. Add claims. Info about this Client
                 foreach (var c in dto.Claims)
                 {
-                    var me = new ClientClaim { ClientId = clientId, Type = c["Type"], Value = c["Value"] };
-                    await _claimRepo.AddClaim(me);
+                    await _claimRepo.AddClaim(new ClientClaim { ClientId = clientId, Type = c["Type"], Value = c["Value"] });
                 }
 
             });

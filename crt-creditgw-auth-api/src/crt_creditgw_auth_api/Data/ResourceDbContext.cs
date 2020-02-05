@@ -60,8 +60,8 @@ namespace crt_creditgw_auth_api.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=CreditGatewayResourceDbTEST;Integrated Security=True;");
-            optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=CreditGatewayResourceDb;Integrated Security=True;");
+            optionsBuilder.UseSqlServer(@"Server=tcp:crt-cgw-sqlserver.database.windows.net,1433;Initial Catalog=CreditGatewayResourceDb;Persist Security Info=False;User ID=cdradmin;Password=@@dm!nUs3r123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            //optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=CreditGatewayResourceDb;Integrated Security=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
