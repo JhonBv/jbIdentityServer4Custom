@@ -8,6 +8,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
+using System.IO;
 
 namespace crt_creditgw_auth_api
 {
@@ -22,12 +23,12 @@ namespace crt_creditgw_auth_api
                 .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", LogEventLevel.Information)
                 .Enrich.FromLogContext()
                 // uncomment to write to Azure diagnostics stream
-                //.WriteTo.File(
-                //    @"D:\home\LogFiles\Application\identityserver.txt",
-                //    fileSizeLimitBytes: 1_000_000,
-                //    rollOnFileSizeLimit: true,
-                //    shared: true,
-                //    flushToDiskInterval: TimeSpan.FromSeconds(1))
+                .WriteTo.File(
+                    @"D:\home\LogFiles\Application\identityserver.txt",
+                    fileSizeLimitBytes: 1_000_000,
+                    rollOnFileSizeLimit: true,
+                    shared: true,
+                    flushToDiskInterval: TimeSpan.FromSeconds(1))
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}", theme: AnsiConsoleTheme.Literate)
                 .CreateLogger();
 
@@ -46,12 +47,23 @@ namespace crt_creditgw_auth_api
             {
                 Log.CloseAndFlush();
             }
+
+
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    //webBuilder.ConfigureKestrel(serverOptions =>
+                    //{
+                    //    // Set properties and call methods on options
+                    //    serverOptions.Limits.MaxRequestBodySize = 10 * 1024;
+
+                    //})
+                    //.UseStartup<Startup>()
+                    //.UseKestrel()
+                    //;
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseSerilog();
                 });
