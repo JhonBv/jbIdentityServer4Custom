@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <parameters>
-  <parameter name="IIS Web Application Name" description="" value="jb-crt" tags="IisApp">
+  <parameter name="IIS Web Application Name" description="" value="crt-auth-v1" tags="IisApp">
     <parameterEntry kind="ProviderPath" scope="IisApp" match="^C:\\Users\\jhonbarreiro\\source\\repos\\crt-creditgw-auth-api\\src\\crt_creditgw_auth_api\\obj\\Release\\netcoreapp3\.0\\PubTmp\\Out\\$" />
   </parameter>
 </parameters>

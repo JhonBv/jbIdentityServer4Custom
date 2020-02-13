@@ -55,15 +55,7 @@ namespace crt_creditgw_auth_api
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    //webBuilder.ConfigureKestrel(serverOptions =>
-                    //{
-                    //    // Set properties and call methods on options
-                    //    serverOptions.Limits.MaxRequestBodySize = 10 * 1024;
 
-                    //})
-                    //.UseStartup<Startup>()
-                    //.UseKestrel()
-                    //;
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseSerilog();
                 });

@@ -22,40 +22,27 @@ namespace crt_creditgw_auth_api
     public class Startup
     {
         public IWebHostEnvironment Environment { get; }
-        public IConfiguration Configuration { get; }
-        public Startup(IWebHostEnvironment environment)
+        public IConfiguration _config { get; }
+        public Startup(IWebHostEnvironment environment, IConfiguration Configuration)
         {
             Environment = environment;
-            Configuration = Configuration;
+            _config = Configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)
-        {
-
-            //JB. Overcome HTTPS Issue. Added 5/2/2020
-            //services.Configure<ForwardedHeadersOptions>(options =>
-            //{
-            //    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor;
-            //    options.RequireHeaderSymmetry = false;
-            //    options.KnownNetworks.Clear();
-            //    options.KnownProxies.Clear();
-
-            //});
-
-            
+        {            
 
             services.AddControllersWithViews(); //JB 27/02/2020, 14:44am
 
             services.AddControllers();//JB 27/02/2020, 13:52
 
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;            
-            const string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=CreditGatewayResourceDb;Integrated Security=True;";
-            const string connusers = @"Data Source=.\SQLEXPRESS;Initial Catalog=CreditGatewayUsers;Integrated Security=True;";
-
-            
             //JB. Configure CreditGatewayUsers DB Context
             services.AddDbContext<AppUserDbContext>(options =>
-                options.UseSqlServer(connusers));
+                options.UseSqlServer(_config.GetConnectionString("UsersDatabase")));
+            //JB. Configure ResourceDb
+            //services.AddDbContext<ResourceConfigDbContext>(options=>
+            //options.UseSqlServer(_config.GetConnectionString("ResourceDatabase")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppUserDbContext>()
@@ -90,22 +77,22 @@ namespace crt_creditgw_auth_api
             services.AddScoped<IGrantTypeRepository, GrantTypeRepository>();
 
             //JB. Configure IdentityServer4 and Database Contexts
-            var builder = services.AddIdentityServer(options=> { options.PublicOrigin = "https://jb-crt.azurewebsites.net"; })
+            var builder = services.AddIdentityServer()//options=> { options.PublicOrigin = "https://jb-crt.azurewebsites.net"; })
 
                 //JB. Configure CreditGatewayResourceDB Configuration Context
                 .AddConfigurationStore(options =>
                     {
-                        options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
+                        //var ResourceConn = _config[];
+                        options.ConfigureDbContext = b => b.UseSqlServer(_config.GetConnectionString("ResourceDatabase"),
                         sql => sql.MigrationsAssembly(migrationsAssembly));
 
                     })
 
 
-                
                 //JB. Configure CreditGatewayResourceDB Persistance Context
                 .AddOperationalStore(options =>
                     {
-                        options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
+                        options.ConfigureDbContext = b => b.UseSqlServer(_config.GetConnectionString("UsersDatabase"),
                         sql => sql.MigrationsAssembly(migrationsAssembly));
                     }).AddAspNetIdentity<ApplicationUser>();
 
@@ -116,24 +103,11 @@ namespace crt_creditgw_auth_api
 
         public void Configure(IApplicationBuilder app)
         {
-            var forwardOptions = new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-                RequireHeaderSymmetry = false
-            };
-
-            forwardOptions.KnownNetworks.Clear();
-            forwardOptions.KnownProxies.Clear();
-            //forwardOptions.KnownNetworks.Add(new IPNetwork(IPAddress.Parse("::ffff:111.12.0.0"), 16));
-
-            app.UseForwardedHeaders(forwardOptions);
 
             if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            //app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedProto, RequireHeaderSymmetry=false});//JB. Overcome HTTPS Issue. Added 5/2/2020
-
 
             app.UseStaticFiles();//JB 27/02/2020, 11:34am
             app.UseRouting();//JB 27/02/2020, 11:34am
