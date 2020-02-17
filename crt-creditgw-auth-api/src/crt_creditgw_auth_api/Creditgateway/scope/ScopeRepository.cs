@@ -10,8 +10,10 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
     /// </summary>
     public class ScopeRepository:IScopeRepository
     {
-        public ScopeRepository()
+        private ResourceConfigDbContext ctx;
+        public ScopeRepository(ResourceConfigDbContext context)
         {
+            ctx = context;
         }
         /// <summary>
         /// JB. Create a New ApiScope when a new ApiResource is added to the Database.
@@ -25,10 +27,12 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
             {
                 await Task.Run(() =>
                 {
-                    using var ctx = new ResourceConfigDbContext();
-                    ctx.ApiScopes.Add(scope);
-                    ctx.SaveChanges();
-                    result = "Api scope successfully added";
+                    using (ctx)
+                    {
+                        ctx.ApiScopes.Add(scope);
+                        ctx.SaveChanges();
+                        result = "Api scope successfully added";
+                    }
                 });
             }
             catch (Exception ex)
@@ -51,12 +55,13 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
             {
                 await Task.Run(() =>
                 {
-                    using var ctx = new ResourceConfigDbContext();
-                    ctx.ClientScopes.Add(scope);
-                    
-                    ctx.SaveChanges();
-                    var id = scope.Id;
-                    result = "Scope added for client Id " + id.ToString();
+                    using (ctx)
+                    { 
+                        ctx.ClientScopes.Add(scope);
+                        ctx.SaveChanges();
+                        var id = scope.Id;
+                        result = "Scope added for client Id " + id.ToString();
+                    }
                 });
             }
             catch (Exception ex)

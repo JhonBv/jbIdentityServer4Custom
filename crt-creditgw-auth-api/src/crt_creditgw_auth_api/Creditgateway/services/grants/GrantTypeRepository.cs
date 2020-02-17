@@ -8,12 +8,17 @@ namespace crt_creditgw_auth_api.Creditgateway.services.grants
 {
     public class GrantTypeRepository : IGrantTypeRepository
     {
+        private ResourceConfigDbContext ctx;
+        public GrantTypeRepository(ResourceConfigDbContext  context)
+        {
+            ctx = context;
+        }
         public async Task<string> AddGrantType(ClientGrantType grant)
         {
             string result = "";
             int grantId = 0;
             await Task.Run(()=> {
-                using (var ctx = new ResourceConfigDbContext())
+                using (/*var*/ ctx /*= new ResourceConfigDbContext()*/)
                 {
                     ctx.ClientGrantTypes.Add(grant);
                     ctx.SaveChanges();

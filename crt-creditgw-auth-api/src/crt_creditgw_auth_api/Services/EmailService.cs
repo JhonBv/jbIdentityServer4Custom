@@ -24,8 +24,9 @@ namespace crt_creditgw_auth_api.Services
             myMessage.AddTo(message.Destination);
             //JB. Sender's details
             myMessage.From = new System.Net.Mail.MailAddress(
-                                Configuration.GetValue<string>("EmailSender:RegistrationsAdminEmail"),
-                                Configuration.GetValue<string>("EmailSender:RegistrationsAdminFrom"));
+                               "admin@creditgateway.com",
+                               "Credit Passport Gateway");//Configuration.GetValue<string>("EmailSender:RegistrationsAdminEmail"),
+                                //Configuration.GetValue<string>("EmailSender:RegistrationsAdminFrom"));
             myMessage.Subject = message.Subject;
             myMessage.Text = message.Body;
             myMessage.Html = message.Body;
@@ -34,8 +35,8 @@ namespace crt_creditgw_auth_api.Services
 
             var credentials = new System.Net.NetworkCredential(
                        //JB. Password is taken from the Azure portal.
-                       Configuration.GetValue<string>("EmailSender:MailAccount"),
-                       Configuration.GetValue<string>("EmailSender:MailPassword")
+                       "azure_766fe05f66a5a5b372dd90eae4dbfef5@azure.com",
+                       "!@mD@us3r"//Configuration.GetValue<string>("EmailSender:MailPassword")
             //Set at the IIS root instead!
             //dbcons[0].ToString()
 

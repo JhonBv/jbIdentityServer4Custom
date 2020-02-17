@@ -11,8 +11,10 @@ namespace crt_creditgw_auth_api.Creditgateway.resources
 {
     public class ResourceRepository:IResourceRepository
     {
-        public ResourceRepository()
+        private ResourceConfigDbContext _ctx;
+        public ResourceRepository(ResourceConfigDbContext context)
         {
+            _ctx = context;
         }
 
         /// <summary>
@@ -23,10 +25,10 @@ namespace crt_creditgw_auth_api.Creditgateway.resources
         public int CreateApiResource(ApiResource resource)
         {
             int daId;
-            using (var ctx = new ResourceConfigDbContext())
+            using (_ctx)
             {
-                ctx.ApiResources.Add(resource);
-                ctx.SaveChanges();
+                _ctx.ApiResources.Add(resource);
+                _ctx.SaveChanges();
                 daId = resource.Id;
             }
             return daId;

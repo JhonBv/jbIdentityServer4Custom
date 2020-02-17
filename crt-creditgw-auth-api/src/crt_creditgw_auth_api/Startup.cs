@@ -41,8 +41,8 @@ namespace crt_creditgw_auth_api
             services.AddDbContext<AppUserDbContext>(options =>
                 options.UseSqlServer(_config.GetConnectionString("UsersDatabase")));
             //JB. Configure ResourceDb
-            //services.AddDbContext<ResourceConfigDbContext>(options=>
-            //options.UseSqlServer(_config.GetConnectionString("ResourceDatabase")));
+            services.AddDbContext<ResourceConfigDbContext>(options =>
+            options.UseSqlServer(_config.GetConnectionString("ResourceDatabase")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppUserDbContext>()
@@ -63,18 +63,18 @@ namespace crt_creditgw_auth_api
             services.AddApplicationInsightsTelemetry();
 
             //JB. DI mapping
-            services.AddScoped<IScopeFactory, ScopeFactory>();
-            services.AddScoped<IScopeRepository, ScopeRepository>();
-            services.AddScoped<ISecretsRepository, SecretsRepository>();
+            services.AddScoped<IScopeFactory, ScopeFactory>(x=> new ScopeFactory(x.GetRequiredService<ResourceConfigDbContext>()));
+            services.AddScoped<IScopeRepository, ScopeRepository>(x => new ScopeRepository(x.GetRequiredService<ResourceConfigDbContext>()));
+            services.AddScoped<ISecretsRepository, SecretsRepository>(x => new SecretsRepository(x.GetRequiredService<ResourceConfigDbContext>()));
             services.AddScoped<ISecretsFactory, SecretsFactory>();
             services.AddScoped<ISecretsService, SecretsService>();
             services.AddScoped<IResourceFactory, ResourceFactory>();
-            services.AddScoped<IResourceRepository, ResourceRepository>();
+            services.AddScoped<IResourceRepository, ResourceRepository>(x => new ResourceRepository(x.GetRequiredService<ResourceConfigDbContext>()));
             services.AddScoped<IClientFactory, ClientFactory>();
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IClaimFactory, ClaimFactory>();
-            services.AddScoped<IClaimRepository, ClaimRepository>();
-            services.AddScoped<IGrantTypeRepository, GrantTypeRepository>();
+            services.AddScoped<IClaimRepository, ClaimRepository>(x => new ClaimRepository(x.GetRequiredService<ResourceConfigDbContext>()));
+            services.AddScoped<IGrantTypeRepository, GrantTypeRepository>(x => new GrantTypeRepository(x.GetRequiredService<ResourceConfigDbContext>()));
 
             //JB. Configure IdentityServer4 and Database Contexts
             var builder = services.AddIdentityServer()//options=> { options.PublicOrigin = "https://jb-crt.azurewebsites.net"; })

@@ -19,14 +19,15 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
         private IScopeRepository _scopeRepo;
         private IClaimRepository _claimRepo;
         private IGrantTypeRepository _grantRepo;
-        
-        
+        private ResourceConfigDbContext ctx;
+
         public ClientRepository(
             IClientFactory factory, 
             ISecretsRepository secretsRepo, 
             IScopeRepository scopeRepo, 
             IClaimRepository claimRepo,
-            IGrantTypeRepository grantRepo
+            IGrantTypeRepository grantRepo,
+            ResourceConfigDbContext context
             )
         {
             _factory = factory;
@@ -34,6 +35,7 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
             _scopeRepo = scopeRepo;
             _claimRepo = claimRepo;
             _grantRepo = grantRepo;
+            ctx = context;
         }
 
         /// <summary>
@@ -54,7 +56,7 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
                 await Task.Run(async () =>
             {
 
-                using (var ctx = new ResourceConfigDbContext())
+                using (/*var*/ ctx /*= new ResourceConfigDbContext()*/)
                 {
                     ctx.Clients.Add(client);
                     ctx.SaveChanges();

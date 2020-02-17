@@ -6,8 +6,10 @@ namespace crt_creditgw_auth_api.Creditgateway.services.secrets
 {
     public class SecretsRepository : ISecretsRepository
     {
-        public SecretsRepository()
+        private ResourceConfigDbContext _ctx;
+        public SecretsRepository(ResourceConfigDbContext context)
         {
+            _ctx = context;
         }
 
         public string AddApiSecret(ApiSecret model)
@@ -15,7 +17,7 @@ namespace crt_creditgw_auth_api.Creditgateway.services.secrets
             string result;
             try
             {
-                using (var _ctx = new ResourceConfigDbContext())
+                using (/*var*/ _ctx /*= new ResourceConfigDbContext()*/)
                 {
                     _ctx.ApiSecrets.Add(model);
                     _ctx.SaveChanges();
@@ -36,7 +38,7 @@ namespace crt_creditgw_auth_api.Creditgateway.services.secrets
             string result;
             try
             {
-                using (var _ctx = new ResourceConfigDbContext())
+                using (/*var*/ _ctx /*= new ResourceConfigDbContext()*/)
                 {
                     _ctx.ClientSecrets.Add(model);
                     _ctx.SaveChanges();

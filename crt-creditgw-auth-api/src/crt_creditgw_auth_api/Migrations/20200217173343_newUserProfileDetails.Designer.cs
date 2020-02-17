@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using crt_creditgw_auth_api.Data;
 
 namespace crt_creditgw_auth_api.Migrations
 {
     [DbContext(typeof(AppUserDbContext))]
-    partial class AppUserDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200217173343_newUserProfileDetails")]
+    partial class newUserProfileDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

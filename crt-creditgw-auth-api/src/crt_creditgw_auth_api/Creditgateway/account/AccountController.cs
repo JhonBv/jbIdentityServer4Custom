@@ -6,24 +6,29 @@ using System.Net.Http;
 using System.Security.Claims;
 //using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web.Http;
+using crt_creditgw_auth_api.Data;
+using crt_creditgw_auth_api.Factories;
 using crt_creditgw_auth_api.Models;
 using crt_creditgw_auth_api.Models.Creditgateway.account;
+using crt_creditgw_auth_api.Models.ViewModels;
+using crt_creditgw_auth_api.Services;
 using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-//using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 
 namespace crt_creditgw_auth_api.Creditgateway.account
 {
-    [Route("api/user")]
-    //[ApiController]
-    public class AccountController : ApiController
+    [Microsoft.AspNetCore.Mvc.Route("api/user")]
+    [ApiController]
+    public class AccountController : ControllerBase
     {
         private readonly Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -31,6 +36,7 @@ namespace crt_creditgw_auth_api.Creditgateway.account
         private readonly IClientStore _clientStore;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IEventService _events;
+        private AppUserDbContext _ctx;
 
         public IConfiguration Configuration { get; }
         public AccountController(Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> userManager,
@@ -38,10 +44,11 @@ namespace crt_creditgw_auth_api.Creditgateway.account
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
-            IEventService events)
+            IEventService events,
+            AppUserDbContext context)
         //JB. Constructor Body
         {
-
+            _ctx = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _interaction = interaction;
@@ -54,82 +61,95 @@ namespace crt_creditgw_auth_api.Creditgateway.account
         /// <summary>
         /// Entry point into the login workflow
         /// </summary>
-        //[Microsoft.AspNetCore.Mvc.HttpGet]
-        //public async Task<IHttpActionResult> Login(string returnUrl)
-        //{
-        //    // build a model so we know what to show on the login page
-        //    var vm = await BuildLoginViewModelAsync(returnUrl);
+        [HttpGet]
+        public async Task<IActionResult> Login(string returnUrl)
+        {
+            // build a model so we know what to show on the login page
+            var vm = await BuildLoginViewModelAsync(returnUrl);
 
-        //    if (vm.IsExternalLoginOnly)
-        //    {
-        //        // we only have one option for logging in and it's an external provider
-        //        return RedirectToAction("Challenge", "External", new { provider = vm.ExternalLoginScheme, returnUrl });
-        //    }
+            if (vm.IsExternalLoginOnly)
+            {
+                // we only have one option for logging in and it's an external provider
+                return RedirectToAction("Challenge", "External", new { provider = vm.ExternalLoginScheme, returnUrl });
+            }
 
-        //    return Ok(vm);
-        //}
+            return Ok(vm);
+        }
+
+
 
         [HttpPost]
-        [Route("Register")][AllowAnonymous]
-        public async Task<IHttpActionResult> Register(ApplicationUser model)
+        [Route("register")][Microsoft.AspNetCore.Authorization.AllowAnonymous]
+        public async Task<HttpResponseMessage> Register(ApplicationUser model)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new InvalidOperationException("Model invalid");
             }
             //JB. if user has not send username, then set the Email as username.
-            var user = new ApplicationUser() { UserName = model.UserName = String.IsNullOrEmpty(model.UserName) ? model.Email : model.UserName, Email = model.Email/*, OriginUrl = model.OriginUrl*/ };
-            IdentityResult result = await _userManager.CreateAsync(user, model.PasswordHash);
+            var user = new ApplicationUser() { UserName = model.UserName = String.IsNullOrEmpty(model.UserName) ? model.Email : model.UserName, Email = model.Email, OriginUrl = model.OriginUrl, DateCreated= DateTime.Now };
+            
+            IdentityResult result = await _userManager.CreateAsync(user, model.PasswordHash.ToSha256());
 
             if (!result.Succeeded)
             {
-                return GetErrorResult(result);
+                throw new InvalidOperationException(result.Errors.ToString());
             }
 
             string code = await this._userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = new Uri(Url.Link("ConfirmEmailRoute", new { userId = user.Id, code = code, email = user.Email }));
-
-            await this._userManager.GenerateEmailConfirmationTokenAsync(user);
-                //(user.Id,
-                //                                    "Please Confirm your Email",
-                //                                   "<div style=\"width:97%; background-image: URL(http://creditpassport-development.azurewebsites.net/content/images/emailBG.png); padding:7px; border:2px solid #ccccc;\" ><img src=\"" + Configuration.GetValue<string>("BaseUrlAddress") + "Content/images/semanthaLogo.jpeg\" style=\"border:1px solid #cccccc; width:30%; height:30%;\" > <br/> <h3>Hello " + user.UserName + " and welcome to the product graph</h3> <p style=\"color:white; font-weight: bold;\" >In order to continue with your registration Please confirm your email address by clicking <a href=\"" + callbackUrl + "\">here</a></p><br/> <p>A CL&SMA LTD Product!</p></div>");
-
-            //JB. Once confirmed, tell our app and update AspNet users table accordingly ;)
-            Uri locationHeader = new Uri(Url.Link("GetUserById", new { id = user.Id }));
+            var callbackUrl = new Uri(Url.Link("ConfirmEmailRoute", new { userId = user.Id, code, email = user.Email }));
+            string babody = "<h3>Hello " + user.UserName + " and welcome to the Credit Passport</h3> <p style=\"color:black; font-weight: bold;\">In order to continue with your registration Please confirm your email address by clicking <a href=\"" + callbackUrl + "\">here</a></p>";
+            
+            EmailService email = new EmailService();
+            await email.SendAsync(new Microsoft.AspNet.Identity.IdentityMessage { Destination = user.Email, Subject="Confirm Email", Body= babody});
+                
 
             await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, user.Email));
+            await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Webpage,user.OriginUrl));
             await _userManager.AddToRoleAsync(user, "User");
 
 
             //JB. Return generated UserId to client
-            return Ok(locationHeader);
+            return new HttpResponseMessage(HttpStatusCode.Created);
 
         }
 
+        [Route("GetUserById")]
+        public ApplicationUserViewModel GetUser(string userId) {
+
+            var res = _ctx.Users.Where(u => u.Id == userId).FirstOrDefault();
+            return new ApplicationUserViewModel {
+                Id = res.Id,
+                Email = res.Email,
+                EmailConfirmed =res.EmailConfirmed
+            };
+        }
+
         [AllowAnonymous]
-        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [HttpGet]
         /// <summary>
         /// End point returning the UserCode after user activaytes user email address.
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="code"></param>
         /// <returns></returns>
-        [Microsoft.AspNetCore.Mvc.Route("ConfirmEmail", Name = "ConfirmEmailRoute")]
-        public async Task<HttpResponseMessage> ConfirmEmail(ApplicationUser user , string code = "")
+        [Route("ConfirmEmail", Name = "ConfirmEmailRoute")]
+        public async Task<HttpResponseMessage> ConfirmEmail(string userId = "", string code = "")
         {
 
-            var response = Request.CreateResponse(HttpStatusCode.Moved);
+            var response = new HttpResponseMessage();
             var badUriResponse = "https://www.creditpassport.com/oops";
             var goodUriResponse = "https://www.creditpassport.com/thanks";
+            var daUser = _ctx.Users.Where(u => u.Id == userId).FirstOrDefault();
 
-            if (string.IsNullOrWhiteSpace(user.Id) || string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(code))
             {
                 ModelState.AddModelError("", "User Id and Code are required");
-                response.Headers.Location = new Uri(badUriResponse);
+                response.Headers.Location =  new Uri(badUriResponse);
                 return response;
             }
 
-            IdentityResult result = await this._userManager.ConfirmEmailAsync(user, code);
+            IdentityResult result = await this._userManager.ConfirmEmailAsync(daUser, code);
 
             if (result.Succeeded)
             {
@@ -149,11 +169,12 @@ namespace crt_creditgw_auth_api.Creditgateway.account
         /* helper APIs for the AccountController */
         /*****************************************/
 
-        protected IHttpActionResult GetErrorResult(IdentityResult result)
+        protected HttpResponseMessage GetErrorResult(IdentityResult result)
         {
+            var response = Request.HttpContext.Response;
             if (result == null)
             {
-                return InternalServerError(); //"500";
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);  //InternalServerError(); //"500";
             }
 
             if (!result.Succeeded)
@@ -169,10 +190,10 @@ namespace crt_creditgw_auth_api.Creditgateway.account
                 if (ModelState.IsValid)
                 {
                     // No ModelState errors are available to send, so just return an empty BadRequest.
-                    return BadRequest();
+                    return new HttpResponseMessage(HttpStatusCode.BadRequest);
                 }
 
-                return BadRequest(ModelState);
+                return new HttpResponseMessage(HttpStatusCode.NotAcceptable);
             }
 
             return null;

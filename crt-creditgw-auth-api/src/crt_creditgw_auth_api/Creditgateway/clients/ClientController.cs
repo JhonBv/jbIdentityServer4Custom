@@ -14,14 +14,12 @@ namespace crt_creditgw_auth_api.Creditgateway.clients
     [ApiController]
     public class ClientController : ControllerBase
     {
-        private ResourceConfigDbContext _context;
 
         private IClientFactory _factory;
         private IClientRepository _repo;
 
         public ClientController(IClientFactory factory, IClientRepository repo)
         {
-            _context = new ResourceConfigDbContext();
 
             _factory = factory;
             _repo = repo;

@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
+    <ApplicationInsightsResourceId>/subscriptions/4851e81d-3a63-4ee0-876a-12f1c0cdf8f6/resourcegroups/Default-ApplicationInsights-EastUS/providers/microsoft.insights/components/crt_creditgw_auth_api</ApplicationInsightsResourceId>
+    <StartupObject>crt_creditgw_auth_api.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,7 +46,10 @@
   
   <ItemGroup>
     <Folder Include="Creditgateway\authSettings\" />
-    <Folder Include="Models\ViewModels\" />
     <Folder Include="Repositories\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 </Project>

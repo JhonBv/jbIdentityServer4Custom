@@ -9,6 +9,11 @@ namespace crt_creditgw_auth_api.Creditgateway.services.claims
 {
     public class ClaimRepository : IClaimRepository
     {
+        private ResourceConfigDbContext ctx;
+        public ClaimRepository(ResourceConfigDbContext context)
+        {
+            ctx = context;
+        }
         /// <summary>
         /// Add new Client Claim
         /// </summary>
@@ -19,7 +24,7 @@ namespace crt_creditgw_auth_api.Creditgateway.services.claims
             string result = "";
             await Task.Run(()=> {
                 try {
-                    using (var ctx = new ResourceConfigDbContext()) {
+                    using (/*var*/ ctx /*= new ResourceConfigDbContext()*/) {
 
                         ctx.ClientClaims.Add(claim);
                         ctx.SaveChanges();
@@ -42,7 +47,7 @@ namespace crt_creditgw_auth_api.Creditgateway.services.claims
             await Task.Run(() => {
                 try {
 
-                    using (var ctx = new ResourceConfigDbContext())
+                    using (/*var*/ ctx /*= new ResourceConfigDbContext()*/)
                     {
                         ctx.ApiClaims.Add(claim);
                         ctx.SaveChanges();

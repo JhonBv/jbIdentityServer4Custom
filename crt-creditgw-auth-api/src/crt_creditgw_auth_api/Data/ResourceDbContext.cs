@@ -1,12 +1,7 @@
 ﻿
 
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using IdentityServer4.EntityFramework.Entities;
-using Microsoft.Extensions.Configuration;
 
 namespace crt_creditgw_auth_api.Data
 {
@@ -48,20 +43,10 @@ namespace crt_creditgw_auth_api.Data
         public DbSet<ApiResourceClaim> ApiClaims { get; set; }
         public DbSet<ApiResourceProperty> ApiProperties { get; set; }
         public DbSet<ApiScopeClaim> ApiScopeClaims { get; set; }
-        //public ResourceConfigDbContext(DbContextOptions<ResourceConfigDbContext> options)
-        //    :base(options)
-        //{
-
-        //}
-        public ResourceConfigDbContext()
+        public ResourceConfigDbContext(DbContextOptions<ResourceConfigDbContext> options)
+            : base(options)
         {
 
-        }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-
-            optionsBuilder.UseSqlServer(@"Server=tcp:crt-cgw-sqlserver.database.windows.net,1433;Initial Catalog=CreditGatewayResourceDb;Persist Security Info=False;User ID=cdradmin;Password=@@dm!nUs3r123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
-            //optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=CreditGatewayResourceDb;Integrated Security=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -70,7 +55,6 @@ namespace crt_creditgw_auth_api.Data
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
-
 
         }
     }

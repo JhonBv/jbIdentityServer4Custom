@@ -9,10 +9,10 @@ namespace crt_creditgw_auth_api.Creditgateway.scope
     public class ScopeFactory:IScopeFactory
     {
 
-        ResourceConfigDbContext _ctx;
-        public ScopeFactory()
+        private ResourceConfigDbContext _ctx;
+        public ScopeFactory(ResourceConfigDbContext context)
         {
-            _ctx = new ResourceConfigDbContext();
+            _ctx = context;
         }
 
         /// <summary>

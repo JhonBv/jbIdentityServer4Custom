@@ -38,5 +38,6 @@ namespace crt_creditgw_auth_api.Data
         public DbSet<BusinessOfficer> BusinessOfficer { get; set; }
         public DbSet<BusinessCategory> BusinessCategory { get; set; }
         public DbSet<SICCode> SICCode { get; set; }
+
     }
 }
